@@ -37,7 +37,7 @@ func (m *debugQueryInterface) Query(ctx context.Context, tableID debefix.TableID
 
 		m.lastTableID = tableID
 	} else {
-		_, _ = fmt.Fprint(m.out, strings.Repeat("-", 20))
+		_, _ = fmt.Fprintf(m.out, "%s\n", strings.Repeat("-", 20))
 	}
 
 	_, err = fmt.Fprintln(m.out, query)
