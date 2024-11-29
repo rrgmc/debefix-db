@@ -64,7 +64,7 @@ func TestResolve(t *testing.T) {
 
 	_, err := debefix.Resolve(ctx, data,
 		ResolveFunc(func(ctx context.Context, resolveInfo ResolveDBInfo, fields map[string]any,
-			returnFieldNames map[string]any) (returnValues map[string]any, err error) {
+			returnFieldNames map[string]debefix.ResolveValue) (returnValues map[string]any, err error) {
 			tableOrder = append(tableOrder, resolveInfo.TableID.TableID())
 			tables[resolveInfo.TableID.TableID()] = append(tables[resolveInfo.TableID.TableID()], fields)
 			return nil, nil
@@ -124,7 +124,7 @@ func TestResolveGenerated(t *testing.T) {
 
 	_, err := debefix.Resolve(ctx, data,
 		ResolveFunc(func(ctx context.Context, resolveInfo ResolveDBInfo, fields map[string]any,
-			returnFieldNames map[string]any) (returnValues map[string]any, err error) {
+			returnFieldNames map[string]debefix.ResolveValue) (returnValues map[string]any, err error) {
 			tableOrder = append(tableOrder, resolveInfo.TableID.TableID())
 			assert.Equal(t, resolveInfo.TableID.TableID(), "public.tags")
 			assert.Assert(t, is.Contains(returnFieldNames, "tag_id"))

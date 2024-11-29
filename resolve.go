@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/rrgmc/debefix/v2"
 )
@@ -18,25 +19,18 @@ type ResolveDBInfo struct {
 // returnFieldNames are the fields whose values are expected to be returned in the return map. Their values may
 // contain a resolve info if sent by the caller.
 type ResolveDBCallback func(ctx context.Context, resolveInfo ResolveDBInfo, fields map[string]any,
-	returnFields map[string]any) (returnValues map[string]any, err error)
+	returnFields map[string]debefix.ResolveValue) (returnValues map[string]any, err error)
 
-// ResolveFunc is a debefix.ResolveCallback helper to generate database records.
+// ResolveFunc is a [debefix.ResolveCallback] helper to generate database records.
 func ResolveFunc(callback ResolveDBCallback) debefix.ResolveCallback {
 	return func(ctx context.Context, resolveInfo debefix.ResolveInfo,
 		values debefix.ValuesMutable) error {
 		fields := map[string]any{}
-		returnFields := map[string]any{}
+		returnFields := map[string]debefix.ResolveValue{}
 
 		for fn, fv := range values.All {
 			if fresolve, ok := fv.(debefix.ResolveValue); ok {
-				switch fr := fresolve.(type) {
-				case debefix.ResolveValueResolveData:
-					returnFields[fn] = fr.ResolveInfo
-				case *debefix.ResolveValueResolveData:
-					returnFields[fn] = fr.ResolveInfo
-				default:
-					return debefix.NewResolveErrorf("unknown ResolveValue type: %T ", fresolve)
-				}
+				returnFields[fn] = fresolve
 			} else {
 				fields[fn] = fv
 			}
@@ -52,6 +46,12 @@ func ResolveFunc(callback ResolveDBCallback) debefix.ResolveCallback {
 		}
 
 		for rn, rv := range resolved {
+			if rvp, ok := returnFields[rn]; ok {
+				rv, err = rvp.ResolveValueParse(ctx, rv)
+				if err != nil {
+					return fmt.Errorf("error parsing resolve value '%s': %w", rn, err)
+				}
+			}
 			values.Set(rn, rv)
 		}
 

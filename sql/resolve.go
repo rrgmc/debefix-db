@@ -13,7 +13,7 @@ import (
 // ResolveDBFunc is a db.ResolveDBCallback helper to generate SQL database records.
 func ResolveDBFunc(qi QueryInterface, queryBuilder QueryBuilder) db.ResolveDBCallback {
 	return func(ctx context.Context, resolveInfo db.ResolveDBInfo, fields map[string]any,
-		returnFieldNames map[string]any) (returnValues map[string]any, err error) {
+		returnFieldNames map[string]debefix.ResolveValue) (returnValues map[string]any, err error) {
 
 		query, args, err := queryBuilder.BuildSQL(ctx, resolveInfo, fields, returnFieldNames)
 		if err != nil {

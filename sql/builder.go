@@ -14,7 +14,7 @@ import (
 
 // QueryBuilder is an abstraction for building SQL queries.
 type QueryBuilder interface {
-	BuildSQL(ctx context.Context, resolveInfo db.ResolveDBInfo, fields map[string]any, returnFieldNames map[string]any) (string, []any, error)
+	BuildSQL(ctx context.Context, resolveInfo db.ResolveDBInfo, fields map[string]any, returnFieldNames map[string]debefix.ResolveValue) (string, []any, error)
 }
 
 // QueryBuilderDialect represents a database dialect used to build queries.
@@ -30,7 +30,8 @@ type QueryBuilderPlaceholderProvider interface {
 }
 
 // BuildQuery builds a query string and arguments.
-func BuildQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, fields map[string]any, returnFieldNames map[string]any) (string, []any, error) {
+func BuildQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, fields map[string]any,
+	returnFieldNames map[string]debefix.ResolveValue) (string, []any, error) {
 	switch resolveInfo.Type {
 	case debefix.ResolveTypeAdd:
 		return buildInsertQuery(dialect, resolveInfo, fields, returnFieldNames)
@@ -41,7 +42,8 @@ func BuildQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, field
 	}
 }
 
-func buildInsertQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, fields map[string]any, returnFields map[string]any) (string, []any, error) {
+func buildInsertQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, fields map[string]any,
+	returnFields map[string]debefix.ResolveValue) (string, []any, error) {
 	tn := dialect.QuoteTable(resolveInfo.TableID.TableName())
 
 	placeholderProvider := dialect.NewPlaceholderProvider()
@@ -87,7 +89,8 @@ func buildInsertQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo,
 	return query, args, nil
 }
 
-func buildUpdateQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, fields map[string]any, returnFields map[string]any) (string, []any, error) {
+func buildUpdateQuery(dialect QueryBuilderDialect, resolveInfo db.ResolveDBInfo, fields map[string]any,
+	returnFields map[string]debefix.ResolveValue) (string, []any, error) {
 	tn := dialect.QuoteTable(resolveInfo.TableID.TableName())
 
 	placeholderProvider := dialect.NewPlaceholderProvider()
@@ -179,7 +182,8 @@ type queryBuilder struct {
 	Dialect QueryBuilderDialect
 }
 
-func (b queryBuilder) BuildSQL(ctx context.Context, resolveInfo db.ResolveDBInfo, fields map[string]any, returnFieldNames map[string]any) (string, []any, error) {
+func (b queryBuilder) BuildSQL(ctx context.Context, resolveInfo db.ResolveDBInfo, fields map[string]any,
+	returnFieldNames map[string]debefix.ResolveValue) (string, []any, error) {
 	return BuildQuery(b.Dialect, resolveInfo, fields, returnFieldNames)
 }
 
