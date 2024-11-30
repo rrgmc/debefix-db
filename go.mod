@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/rrgmc/debefix/v2 v2.0.4
+	github.com/rrgmc/debefix/v2 v2.0.6
 	gotest.tools/v3 v3.5.1
 )
 
